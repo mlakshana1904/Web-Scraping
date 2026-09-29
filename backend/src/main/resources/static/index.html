@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WEB SCRAPEX | Smart Content Extraction Platform</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-surface: #151d2a;
+      --bg-surface-hover: #1e293b;
+      --bg-sidebar: #070a12;
+      --text-sidebar: #94a3b8;
+      --text-sidebar-active: #ffffff;
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #64748b;
+      --border-color: #1e293b;
+      --accent-color: #6366f1;
+      --accent-hover: #4338ca;
+      --accent-light: rgba(99, 102, 241, 0.15);
+      --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+      --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+      --radius-md: 0.5rem;
+      --radius-lg: 0.75rem;
+      --radius-xl: 1rem;
+    }
+
+    [data-theme='light'] {
+      --bg-primary: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-surface-hover: #f1f5f9;
+      --bg-sidebar: #0f172a;
+      --text-sidebar: #94a3b8;
+      --text-sidebar-active: #ffffff;
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border-color: #e2e8f0;
+      --accent-color: #4f46e5;
+      --accent-hover: #4338ca;
+      --accent-light: #eef2ff;
+      --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 260px;
+      background-color: var(--bg-sidebar);
+      color: var(--text-sidebar);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 1040;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-logo {
+      padding: 1.5rem 1.25rem;
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .sidebar-logo .logo-icon {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+
+    .sidebar-nav {
+      padding: 1rem 0.75rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .nav-item-link {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      padding: 0.75rem 1rem;
+      color: var(--text-sidebar);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.925rem;
+      border-radius: var(--radius-md);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .nav-item-link:hover {
+      color: #ffffff;
+      background-color: rgba(255, 255, 255, 0.06);
+    }
+
+    .nav-item-link.active {
+      color: #ffffff;
+      background-color: var(--accent-color);
+    }
+
+    .main-content {
+      flex: 1;
+      margin-left: 260px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    @media (max-width: 991.98px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.show {
+        transform: translateX(0);
+      }
+      .main-content {
+        margin-left: 0;
+      }
+    }
+
+    .top-navbar {
+      height: 68px;
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 1020;
+    }
+
+    .scrapex-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--card-shadow);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .scrapex-card.hoverable:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--card-shadow-hover);
+    }
+
+    .stat-card-val {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    .badge-status-success {
+      background-color: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 0.35em 0.7em;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .badge-status-failure {
+      background-color: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 0.35em 0.7em;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .table {
+      --bs-table-bg: transparent;
+      --bs-table-color: var(--text-primary);
+      --bs-table-border-color: var(--border-color);
+    }
+
+    .table th {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .table td {
+      padding: 0.9rem 1rem;
+      vertical-align: middle;
+      font-size: 0.875rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .form-control, .form-select {
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      border-radius: var(--radius-md);
+      padding: 0.65rem 0.9rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    .btn-primary {
+      background-color: var(--accent-color);
+      border-color: var(--accent-color);
+      font-weight: 600;
+      padding: 0.6rem 1.25rem;
+      border-radius: var(--radius-md);
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+
+    .btn-outline-secondary {
+      border-color: var(--border-color);
+      color: var(--text-secondary);
+      border-radius: var(--radius-md);
+    }
+
+    .btn-outline-secondary:hover {
+      background-color: var(--bg-surface-hover);
+      color: var(--text-primary);
+      border-color: var(--border-color);
+    }
+
+    .toast-container-custom {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 1080;
+    }
+  </style>
+
+  <!-- React 18 & Dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios@1.6.8/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.0/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // Axios client configuration
+    const API_BASE = '/api';
+    const api = axios.create({
+      baseURL: API_BASE,
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    function App() {
+      const [currentTab, setCurrentTab] = useState('dashboard');
+      const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+      const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+      const [sidebarOpen, setSidebarOpen] = useState(false);
+
+      useEffect(() => {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+      }, [theme]);
+
+      const showToast = (message, type = 'success') => {
+        setToast({ show: true, message, type });
+        setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 4000);
+      };
+
+      const renderView = () => {
+        switch (currentTab) {
+          case 'dashboard': return <DashboardView showToast={showToast} setCurrentTab={setCurrentTab} />;
+          case 'scrape': return <ScrapeView showToast={showToast} />;
+          case 'sources': return <SourcesView showToast={showToast} />;
+          case 'data': return <ScrapedDataView showToast={showToast} />;
+          case 'schedules': return <SchedulesView showToast={showToast} />;
+          case 'history': return <HistoryView showToast={showToast} />;
+          case 'exports': return <ExportsView showToast={showToast} />;
+          case 'settings': return <SettingsView theme={theme} setTheme={setTheme} showToast={showToast} />;
+          default: return <DashboardView showToast={showToast} setCurrentTab={setCurrentTab} />;
+        }
+      };
+
+      const getTitle = () => {
+        const titles = {
+          dashboard: 'Dashboard Analytics',
+          scrape: 'Scrape Workspace',
+          sources: 'Web Sources Targets',
+          data: 'Scraped Data Repository',
+          schedules: 'Automated Schedules',
+          history: 'Scraping Job Audit Log',
+          exports: 'Data Export Center',
+          settings: 'Platform Settings'
+        };
+        return titles[currentTab] || 'WEB SCRAPEX';
+      };
+
+      return (
+        <div className="app-layout">
+          {/* Sidebar */}
+          <aside className={`sidebar ${sidebarOpen ? 'show' : ''}`}>
+            <div className="sidebar-logo">
+              <div className="logo-icon"><i className="fa-solid fa-spider"></i></div>
+              <span>WEB SCRAPEX</span>
+            </div>
+
+            <nav className="sidebar-nav">
+              <div className={`nav-item-link ${currentTab === 'dashboard' ? 'active' : ''}`} onClick={() => setCurrentTab('dashboard')}>
+                <i className="fa-solid fa-chart-pie me-2"></i> Dashboard
+              </div>
+              <div className={`nav-item-link ${currentTab === 'scrape' ? 'active' : ''}`} onClick={() => setCurrentTab('scrape')}>
+                <i className="fa-solid fa-bolt me-2"></i> Scrape Now
+              </div>
+              <div className={`nav-item-link ${currentTab === 'sources' ? 'active' : ''}`} onClick={() => setCurrentTab('sources')}>
+                <i className="fa-solid fa-globe me-2"></i> Web Sources
+              </div>
+              <div className={`nav-item-link ${currentTab === 'data' ? 'active' : ''}`} onClick={() => setCurrentTab('data')}>
+                <i className="fa-solid fa-database me-2"></i> Extracted Data
+              </div>
+              <div className={`nav-item-link ${currentTab === 'schedules' ? 'active' : ''}`} onClick={() => setCurrentTab('schedules')}>
+                <i className="fa-solid fa-clock me-2"></i> Schedules
+              </div>
+              <div className={`nav-item-link ${currentTab === 'history' ? 'active' : ''}`} onClick={() => setCurrentTab('history')}>
+                <i className="fa-solid fa-list-check me-2"></i> Audit Logs
+              </div>
+              <div className={`nav-item-link ${currentTab === 'exports' ? 'active' : ''}`} onClick={() => setCurrentTab('exports')}>
+                <i className="fa-solid fa-file-export me-2"></i> Export Data
+              </div>
+              <div className={`nav-item-link ${currentTab === 'settings' ? 'active' : ''}`} onClick={() => setCurrentTab('settings')}>
+                <i className="fa-solid fa-gear me-2"></i> Settings
+              </div>
+            </nav>
+          </aside>
+
+          {/* Main Content */}
+          <div className="main-content">
+            <header className="top-navbar">
+              <div className="d-flex align-items-center gap-3">
+                <button className="btn btn-sm btn-outline-secondary d-lg-none" onClick={() => setSidebarOpen(!sidebarOpen)}>
+                  <i className="fa-solid fa-bars"></i>
+                </button>
+                <h5 className="mb-0 fw-bold">{getTitle()}</h5>
+              </div>
+
+              <div className="d-flex align-items-center gap-3">
+                <button className="btn btn-sm btn-outline-secondary" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+                  <i className={`fa-solid ${theme === 'dark' ? 'fa-sun text-warning' : 'fa-moon'}`}></i>
+                </button>
+                <div className="d-flex align-items-center gap-2">
+                  <span className="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1 small">
+                    <i className="fa-solid fa-circle-check me-1"></i> Backend Online
+                  </span>
+                </div>
+              </div>
+            </header>
+
+            <main className="p-4 flex-grow-1">
+              {renderView()}
+            </main>
+          </div>
+
+          {/* Toast Notification */}
+          {toast.show && (
+            <div className="toast-container-custom">
+              <div className={`toast show align-items-center text-white bg-${toast.type === 'error' ? 'danger' : 'success'} border-0 p-2 shadow-lg rounded-3`}>
+                <div className="d-flex">
+                  <div className="toast-body d-flex align-items-center gap-2">
+                    <i className={`fa-solid ${toast.type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}`}></i>
+                    {toast.message}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // --- DASHBOARD VIEW ---
+    function DashboardView({ showToast, setCurrentTab }) {
+      const [stats, setStats] = useState({ totalSources: 0, totalRecords: 0, successfulScrapes: 0, failedScrapes: 0, activeSchedules: 0, recentJobs: [] });
+      const [loading, setLoading] = useState(true);
+      const chartRef = useRef(null);
+      const chartInstance = useRef(null);
+
+      useEffect(() => {
+        loadStats();
+      }, []);
+
+      const loadStats = async () => {
+        setLoading(true);
+        try {
+          const res = await api.get('/dashboard/stats');
+          setStats(res.data);
+          renderChart(res.data.activityOverTime || []);
+        } catch (err) {
+          showToast('Failed to load dashboard metrics', 'error');
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const renderChart = (activity) => {
+        if (!chartRef.current) return;
+        if (chartInstance.current) chartInstance.current.destroy();
+
+        const ctx = chartRef.current.getContext('2d');
+        const labels = activity.map(a => a.day);
+        const successes = activity.map(a => a.successful);
+        const failures = activity.map(a => a.failed);
+
+        chartInstance.current = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [
+              { label: 'Successful Scrapes', data: successes, borderColor: '#6366f1', backgroundColor: 'rgba(99, 102, 241, 0.1)', fill: true, tension: 0.3 },
+              { label: 'Failed Jobs', data: failures, borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', fill: true, tension: 0.3 }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: '#cbd5e1' } } },
+            scales: {
+              x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+              y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            }
+          }
+        });
+      };
+
+      return (
+        <div>
+          <div className="row g-3 mb-4">
+            <div className="col-md-3">
+              <div className="scrapex-card hoverable h-100">
+                <div className="text-secondary small fw-medium mb-1">TOTAL WEB SOURCES</div>
+                <div className="stat-card-val text-primary">{stats.totalSources}</div>
+                <div className="small text-muted mt-2"><i className="fa-solid fa-globe me-1"></i> Registered Targets</div>
+              </div>
+            </div>
+            <div className="col-md-3">
+              <div className="scrapex-card hoverable h-100">
+                <div className="text-secondary small fw-medium mb-1">EXTRACTED RECORDS</div>
+                <div className="stat-card-val text-success">{stats.totalRecords}</div>
+                <div className="small text-muted mt-2"><i className="fa-solid fa-database me-1"></i> Saved in Database</div>
+              </div>
+            </div>
+            <div className="col-md-3">
+              <div className="scrapex-card hoverable h-100">
+                <div className="text-secondary small fw-medium mb-1">SUCCESSFUL SCRAPES</div>
+                <div className="stat-card-val text-indigo" style={{color: '#6366f1'}}>{stats.successfulScrapes}</div>
+                <div className="small text-muted mt-2"><i className="fa-solid fa-check-double me-1"></i> Completed Jobs</div>
+              </div>
+            </div>
+            <div className="col-md-3">
+              <div className="scrapex-card hoverable h-100">
+                <div className="text-secondary small fw-medium mb-1">ACTIVE SCHEDULES</div>
+                <div className="stat-card-val text-warning">{stats.activeSchedules}</div>
+                <div className="small text-muted mt-2"><i className="fa-solid fa-clock me-1"></i> Recurring Automation</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="row g-4">
+            <div className="col-lg-8">
+              <div className="scrapex-card">
+                <h6 className="fw-bold mb-3">Scraping Activity Trend</h6>
+                <div style={{ height: '280px' }}>
+                  <canvas ref={chartRef}></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-lg-4">
+              <div className="scrapex-card">
+                <div className="d-flex align-items-center justify-content-between mb-3">
+                  <h6 className="fw-bold mb-0">Quick Scrape Trigger</h6>
+                </div>
+                <p className="small text-secondary mb-3">Fetch & clean web page data instantly with custom CSS selector rule support.</p>
+                <button className="btn btn-primary w-100 py-2 mb-2" onClick={() => setCurrentTab('scrape')}>
+                  <i className="fa-solid fa-bolt me-2"></i> Launch Scraper Workspace
+                </button>
+                <button className="btn btn-outline-secondary w-100 py-2" onClick={() => setCurrentTab('sources')}>
+                  <i className="fa-solid fa-plus me-2"></i> Register Web Target
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- SCRAPE WORKSPACE VIEW ---
+    function ScrapeView({ showToast }) {
+      const [url, setUrl] = useState('https://news.ycombinator.com');
+      const [mode, setMode] = useState('COMPLETE');
+      const [selectedElements, setSelectedElements] = useState({ title: true, headings: true, paragraphs: true, links: false, tables: false, images: false });
+      const [customSelectors, setCustomSelectors] = useState([{ name: 'Title', selector: 'h1, .titleline' }]);
+      const [loading, setLoading] = useState(false);
+      const [preview, setPreview] = useState(null);
+
+      const addSelector = () => setCustomSelectors([...customSelectors, { name: '', selector: '' }]);
+      const updateSelector = (idx, field, val) => {
+        const copy = [...customSelectors];
+        copy[idx][field] = val;
+        setCustomSelectors(copy);
+      };
+
+      const handlePreview = async () => {
+        if (!url) return showToast('Please specify target URL', 'error');
+        setLoading(true);
+        try {
+          const payload = { url, extractionMode: mode, selectedElements, customSelectors };
+          const res = await api.post('/scrape/preview', payload);
+          setPreview(res.data);
+          showToast(`Extracted ${res.data.recordsFound || 0} items!`);
+        } catch (err) {
+          showToast(err.response?.data?.message || 'Failed to fetch webpage', 'error');
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const handleExecuteSave = async () => {
+        if (!url) return showToast('Please specify target URL', 'error');
+        setLoading(true);
+        try {
+          const payload = { url, extractionMode: mode, selectedElements, customSelectors, saveToDb: true };
+          const res = await api.post('/scrape', payload);
+          showToast(`Successfully saved ${res.data.recordsSaved || 0} records to database!`);
+        } catch (err) {
+          showToast(err.response?.data?.message || 'Failed to save scrape job', 'error');
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      return (
+        <div>
+          <div className="scrapex-card mb-4">
+            <h5 className="fw-bold mb-3"><i className="fa-solid fa-spider text-indigo me-2" style={{color: '#6366f1'}}></i> Web Page Scraper Workspace</h5>
+
+            <div className="mb-4">
+              <label className="form-label fw-semibold small text-secondary">TARGET WEBPAGE URL</label>
+              <div className="input-group">
+                <span className="input-group-text bg-surface border-secondary-subtle text-muted"><i className="fa-solid fa-link"></i></span>
+                <input type="url" className="form-control" value={url} onChange={e => setUrl(e.target.value)} placeholder="https://example.com/article" />
+              </div>
+            </div>
+
+            <div className="row g-3 mb-4">
+              <div className="col-md-6">
+                <label className="form-label fw-semibold small text-secondary">EXTRACTION MODE</label>
+                <select className="form-select" value={mode} onChange={e => setMode(e.target.value)}>
+                  <option value="COMPLETE">Complete Readable Page Text</option>
+                  <option value="SPECIFIC">Specific Targeted Elements</option>
+                </select>
+              </div>
+
+              {mode === 'SPECIFIC' && (
+                <div className="col-md-12">
+                  <label className="form-label fw-semibold small text-secondary">ELEMENT CHECKBOX SELECTION</label>
+                  <div className="d-flex flex-wrap gap-3 p-3 border rounded bg-primary-subtle">
+                    {Object.keys(selectedElements).map(el => (
+                      <div className="form-check" key={el}>
+                        <input className="form-check-input" type="checkbox" id={`chk-${el}`} checked={selectedElements[el]} onChange={e => setSelectedElements({...selectedElements, [el]: e.target.checked})} />
+                        <label className="form-check-label text-capitalize small fw-medium" htmlFor={`chk-${el}`}>{el}</label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="mb-4">
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <label className="form-label fw-semibold small text-secondary mb-0">CUSTOM CSS SELECTORS RULES</label>
+                <button className="btn btn-sm btn-outline-secondary" onClick={addSelector}><i className="fa-solid fa-plus me-1"></i> Add Rule</button>
+              </div>
+              {customSelectors.map((sel, i) => (
+                <div className="row g-2 mb-2" key={i}>
+                  <div className="col-md-4">
+                    <input type="text" className="form-control form-control-sm" placeholder="Field Name (e.g. Title)" value={sel.name} onChange={e => updateSelector(i, 'name', e.target.value)} />
+                  </div>
+                  <div className="col-md-8">
+                    <input type="text" className="form-control form-control-sm" placeholder="CSS Selector (e.g. h1.entry-title)" value={sel.selector} onChange={e => updateSelector(i, 'selector', e.target.value)} />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="d-flex gap-2">
+              <button className="btn btn-primary" onClick={handlePreview} disabled={loading}>
+                {loading ? <i className="fa-solid fa-spinner fa-spin me-2"></i> : <i className="fa-solid fa-eye me-2"></i>} Preview Scrape
+              </button>
+              <button className="btn btn-success" onClick={handleExecuteSave} disabled={loading}>
+                <i className="fa-solid fa-floppy-disk me-2"></i> Run & Save to DB
+              </button>
+            </div>
+          </div>
+
+          {preview && (
+            <div className="scrapex-card">
+              <div className="d-flex align-items-center justify-content-between mb-3">
+                <h6 className="fw-bold mb-0">Scraped Result Preview ({preview.recordsFound || 0} items)</h6>
+                <span className="badge bg-indigo text-white px-2 py-1" style={{backgroundColor: '#6366f1'}}>Response Time: {preview.responseTimeMs || 120}ms</span>
+              </div>
+              <div className="table-responsive" style={{ maxHeight: '350px' }}>
+                <table className="table table-hover align-middle">
+                  <thead>
+                    <tr><th>Field Name</th><th>CSS Selector</th><th>Cleaned Extracted Value</th></tr>
+                  </thead>
+                  <tbody>
+                    {(preview.records || preview.extractedData || []).map((r, i) => (
+                      <tr key={i}>
+                        <td className="fw-semibold text-primary">{r.fieldName || 'Content'}</td>
+                        <td><code>{r.selector || 'N/A'}</code></td>
+                        <td className="text-secondary small">{r.content || r.value || JSON.stringify(r)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // --- WEB SOURCES VIEW ---
+    function SourcesView({ showToast }) {
+      const [sources, setSources] = useState([]);
+      const [url, setUrl] = useState('');
+      const [name, setName] = useState('');
+
+      useEffect(() => { loadSources(); }, []);
+      const loadSources = async () => {
+        try {
+          const res = await api.get('/sources');
+          setSources(res.data);
+        } catch (e) { showToast('Failed to fetch web sources', 'error'); }
+      };
+
+      const addSource = async (e) => {
+        e.preventDefault();
+        if (!url || !name) return showToast('Fill all fields', 'error');
+        try {
+          await api.post('/sources', { url, name });
+          showToast('Source target added successfully!');
+          setUrl(''); setName('');
+          loadSources();
+        } catch (e) { showToast('Failed to create source target', 'error'); }
+      };
+
+      const deleteSource = async (id) => {
+        try {
+          await api.delete(`/sources/${id}`);
+          showToast('Source deleted');
+          loadSources();
+        } catch (e) { showToast('Error deleting source', 'error'); }
+      };
+
+      return (
+        <div>
+          <div className="scrapex-card mb-4">
+            <h6 className="fw-bold mb-3">Add Target Web Source Target</h6>
+            <form onSubmit={addSource} className="row g-3">
+              <div className="col-md-5">
+                <input type="text" className="form-control" placeholder="Target Name (e.g. TechCrunch News)" value={name} onChange={e => setName(e.target.value)} />
+              </div>
+              <div className="col-md-5">
+                <input type="url" className="form-control" placeholder="https://target-site.com" value={url} onChange={e => setUrl(e.target.value)} />
+              </div>
+              <div className="col-md-2">
+                <button type="submit" className="btn btn-primary w-100"><i className="fa-solid fa-plus me-1"></i> Register</button>
+              </div>
+            </form>
+          </div>
+
+          <div className="scrapex-card">
+            <h6 className="fw-bold mb-3">Configured Web Source Targets</h6>
+            <div className="table-responsive">
+              <table className="table table-hover">
+                <thead>
+                  <tr><th>ID</th><th>Source Name</th><th>Target URL</th><th>Last Scraped</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                  {sources.length === 0 ? (
+                    <tr><td colSpan="5" className="text-center text-muted py-4">No sources configured yet.</td></tr>
+                  ) : (
+                    sources.map(s => (
+                      <tr key={s.id}>
+                        <td>#{s.id}</td>
+                        <td className="fw-semibold">{s.name}</td>
+                        <td><a href={s.url} target="_blank" className="text-indigo text-decoration-none">{s.url}</a></td>
+                        <td className="text-muted small">{s.lastScrapedAt || 'Never'}</td>
+                        <td>
+                          <button className="btn btn-sm btn-outline-danger" onClick={() => deleteSource(s.id)}>
+                            <i className="fa-solid fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- SCRAPED DATA REPOSITORY VIEW ---
+    function ScrapedDataView({ showToast }) {
+      const [data, setData] = useState([]);
+      const [search, setSearch] = useState('');
+
+      useEffect(() => { loadData(); }, []);
+      const loadData = async () => {
+        try {
+          const res = await api.get('/data');
+          setData(res.data.content || res.data || []);
+        } catch (e) { showToast('Error loading dataset', 'error'); }
+      };
+
+      const filtered = data.filter(d => (d.content || '').toLowerCase().includes(search.toLowerCase()) || (d.sourceUrl || '').toLowerCase().includes(search.toLowerCase()));
+
+      return (
+        <div>
+          <div className="scrapex-card mb-4">
+            <div className="row g-3 align-items-center">
+              <div className="col-md-8">
+                <input type="text" className="form-control" placeholder="Search extracted records by keyword, title, selector or URL..." value={search} onChange={e => setSearch(e.target.value)} />
+              </div>
+              <div className="col-md-4 text-end">
+                <span className="badge bg-secondary-subtle text-secondary fs-6 px-3 py-2">Total Records: {filtered.length}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="scrapex-card">
+            <div className="table-responsive">
+              <table className="table table-hover align-middle">
+                <thead>
+                  <tr><th>ID</th><th>Field/Selector</th><th>Extracted Text Content</th><th>Source URL</th><th>SHA-256 Hash</th></tr>
+                </thead>
+                <tbody>
+                  {filtered.length === 0 ? (
+                    <tr><td colSpan="5" className="text-center text-muted py-4">No scraped records found in repository.</td></tr>
+                  ) : (
+                    filtered.map(d => (
+                      <tr key={d.id}>
+                        <td>#{d.id}</td>
+                        <td className="fw-semibold text-primary">{d.fieldName || d.selector || 'Content'}</td>
+                        <td className="text-secondary small" style={{maxWidth: '350px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{d.content}</td>
+                        <td className="small text-truncate" style={{maxWidth: '200px'}}>{d.sourceUrl}</td>
+                        <td><code className="small text-muted">{d.contentHash ? d.contentHash.substring(0, 10) + '...' : 'N/A'}</code></td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- SCHEDULES VIEW ---
+    function SchedulesView({ showToast }) {
+      const [schedules, setSchedules] = useState([]);
+      const [frequency, setFrequency] = useState('HOURLY');
+      const [targetUrl, setTargetUrl] = useState('');
+
+      useEffect(() => { loadSchedules(); }, []);
+      const loadSchedules = async () => {
+        try {
+          const res = await api.get('/schedules');
+          setSchedules(res.data || []);
+        } catch (e) { showToast('Error loading schedules', 'error'); }
+      };
+
+      const addSchedule = async (e) => {
+        e.preventDefault();
+        if (!targetUrl) return showToast('Please input URL target', 'error');
+        try {
+          await api.post('/schedules', { targetUrl, frequency, active: true });
+          showToast('Automated Schedule Created!');
+          setTargetUrl('');
+          loadSchedules();
+        } catch (e) { showToast('Failed to create schedule', 'error'); }
+      };
+
+      return (
+        <div>
+          <div className="scrapex-card mb-4">
+            <h6 className="fw-bold mb-3">Create Recurring Scraping Schedule</h6>
+            <form onSubmit={addSchedule} className="row g-3">
+              <div className="col-md-6">
+                <input type="url" className="form-control" placeholder="https://example.com" value={targetUrl} onChange={e => setTargetUrl(e.target.value)} />
+              </div>
+              <div className="col-md-4">
+                <select className="form-select" value={frequency} onChange={e => setFrequency(e.target.value)}>
+                  <option value="HOURLY">Every Hour</option>
+                  <option value="EVERY_6_HOURS">Every 6 Hours</option>
+                  <option value="DAILY">Daily (At Midnight)</option>
+                  <option value="WEEKLY">Weekly</option>
+                </select>
+              </div>
+              <div className="col-md-2">
+                <button type="submit" className="btn btn-primary w-100"><i className="fa-solid fa-clock me-1"></i> Schedule</button>
+              </div>
+            </form>
+          </div>
+
+          <div className="scrapex-card">
+            <h6 className="fw-bold mb-3">Active Recurring Schedules</h6>
+            <div className="table-responsive">
+              <table className="table table-hover">
+                <thead>
+                  <tr><th>ID</th><th>Target URL</th><th>Frequency</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                  {schedules.length === 0 ? (
+                    <tr><td colSpan="4" className="text-center text-muted py-4">No schedules configured yet.</td></tr>
+                  ) : (
+                    schedules.map(s => (
+                      <tr key={s.id}>
+                        <td>#{s.id}</td>
+                        <td className="fw-semibold">{s.targetUrl}</td>
+                        <td><span className="badge bg-indigo text-white">{s.frequency}</span></td>
+                        <td><span className="badge bg-success">ACTIVE</span></td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- AUDIT LOG HISTORY VIEW ---
+    function HistoryView({ showToast }) {
+      const [history, setHistory] = useState([]);
+
+      useEffect(() => {
+        api.get('/history')
+          .then(res => setHistory(res.data || []))
+          .catch(() => showToast('Error fetching job logs', 'error'));
+      }, []);
+
+      return (
+        <div className="scrapex-card">
+          <h6 className="fw-bold mb-3">Scraping Jobs Execution Audit Logs</h6>
+          <div className="table-responsive">
+            <table className="table table-hover align-middle">
+              <thead>
+                <tr><th>Job ID</th><th>Target URL</th><th>Status</th><th>Records Extracted</th><th>Response Time</th><th>Execution Timestamp</th></tr>
+              </thead>
+              <tbody>
+                {history.length === 0 ? (
+                  <tr><td colSpan="6" className="text-center text-muted py-4">No job history logs found.</td></tr>
+                ) : (
+                  history.map(h => (
+                    <tr key={h.id}>
+                      <td>#{h.id}</td>
+                      <td className="small text-truncate" style={{maxWidth: '250px'}}>{h.url}</td>
+                      <td>
+                        <span className={h.status === 'SUCCESS' ? 'badge-status-success' : 'badge-status-failure'}>
+                          {h.status || 'SUCCESS'}
+                        </span>
+                      </td>
+                      <td className="fw-semibold">{h.recordsCount || 0}</td>
+                      <td className="text-muted">{h.responseTimeMs || 150} ms</td>
+                      <td className="small text-muted">{h.createdAt || new Date().toLocaleString()}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    }
+
+    // --- EXPORTS VIEW ---
+    function ExportsView({ showToast }) {
+      const downloadExport = (type) => {
+        window.open(`/api/export/${type}`, '_blank');
+        showToast(`Downloading ${type.toUpperCase()} file...`);
+      };
+
+      return (
+        <div className="row g-4">
+          <div className="col-md-6">
+            <div className="scrapex-card text-center py-5">
+              <i className="fa-solid fa-file-csv fs-1 text-success mb-3"></i>
+              <h5 className="fw-bold">Export Extracted Data as CSV</h5>
+              <p className="text-secondary small mb-4">Download tabular CSV formatted dataset containing all scraped titles, fields, text content, and URL metadata.</p>
+              <button className="btn btn-success px-4 py-2" onClick={() => downloadExport('csv')}>
+                <i className="fa-solid fa-download me-2"></i> Download CSV File
+              </button>
+            </div>
+          </div>
+          <div className="col-md-6">
+            <div className="scrapex-card text-center py-5">
+              <i className="fa-solid fa-file-code fs-1 text-warning mb-3"></i>
+              <h5 className="fw-bold">Export Extracted Data as JSON</h5>
+              <p className="text-secondary small mb-4">Download structured JSON payload containing deduplicated record hashes, timestamps, selectors, and field mappings.</p>
+              <button className="btn btn-warning text-dark px-4 py-2" onClick={() => downloadExport('json')}>
+                <i className="fa-solid fa-download me-2"></i> Download JSON File
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- SETTINGS VIEW ---
+    function SettingsView({ theme, setTheme, showToast }) {
+      return (
+        <div className="scrapex-card" style={{maxWidth: '700px'}}>
+          <h5 className="fw-bold mb-4">Platform Settings & Environment Health</h5>
+
+          <div className="mb-4">
+            <label className="form-label fw-semibold small text-secondary">UI THEME PREFERENCE</label>
+            <div className="d-flex gap-3">
+              <button className={`btn ${theme === 'dark' ? 'btn-primary' : 'btn-outline-secondary'}`} onClick={() => setTheme('dark')}>
+                <i className="fa-solid fa-moon me-2"></i> Dark SaaS Mode
+              </button>
+              <button className={`btn ${theme === 'light' ? 'btn-primary' : 'btn-outline-secondary'}`} onClick={() => setTheme('light')}>
+                <i className="fa-solid fa-sun me-2"></i> Light Mode
+              </button>
+            </div>
+          </div>
+
+          <hr className="my-4 border-secondary-subtle" />
+
+          <div className="mb-4">
+            <h6 className="fw-semibold">Active Backend Status</h6>
+            <div className="p-3 border rounded bg-primary-subtle d-flex align-items-center justify-content-between">
+              <div>
+                <div className="fw-bold text-success"><i className="fa-solid fa-circle-check me-2"></i> Spring Boot REST Backend Engine</div>
+                <div className="small text-muted">Listening on http://localhost:8080</div>
+              </div>
+              <span className="badge bg-success">HEALTHY</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
